@@ -37,7 +37,11 @@ Simple Reverse Polish Notation evaluator written in PHP.
 - `swp` - swap last two values on stack (`... 10 20 swp` becomes `... 20 10`)
 
 ### Comparisons
-All operation returns `1` as `true` and `0` as `false`.
+All operations return `1` as `true` and `0` as `false`.
 
 - `==` - equals (`3 3 ==` = `1`)
-...
+- `>`
+- `<`
+- `>=`
+- `<=`
+- `between` - value is between two values (`2 10 5 between` = `1`; `1 5 1 between` = `0`; `5 10 15 between` = `0`)
