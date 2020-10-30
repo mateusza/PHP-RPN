@@ -1,6 +1,6 @@
 <?php
 
-function rpn_eval( $exp, $CUSTOM_OPERS = [] ){
+function rpn_eval( $exp, $custom_ops = [] ){
     $OPERS = [
 
         // basic maths
@@ -175,15 +175,39 @@ function rpn_eval( $exp, $CUSTOM_OPERS = [] ){
             $stack[] = $token;
         }
         else {
-            if ( array_key_exists( $token, $CUSTOM_OPERS ) ){
-                $CUSTOM_OPERS[ $token ]( $stack );
+
+            if ( ! is_null( $custom_ops ) ){
+                $op = null;
+                if ( is_callable( $custom_ops ) ){
+                    $op = $custom_ops( $token );
+                }
+                if ( is_array( $custom_ops ) && array_key_exists( $token, $custom_ops ) ){
+                    $op = $custom_ops[ $token ];
+                }
+
+                if ( is_callable( $op ) ){
+                    $op( $stack );
+                    continue;
+                }
+                if ( ! is_null( $op ) ){
+                    $stack[] = $op;
+                    continue;
+                }
             }
-            elseif ( array_key_exists( $token, $OPERS ) ){
-                $OPERS[ $token ]( $stack );
+
+            if ( array_key_exists( $token, $OPERS ) ){
+                $op = $OPERS[ $token ];
             }
-            else {
-                throw new Exception("RPN: Unknown operation [$token]");
+            if ( is_callable( $op ) ){
+                $op( $stack );
+                continue;
             }
+            if ( ! is_null( $op ) ){
+                $stack[] = $op;
+                continue;
+            }
+
+            throw new Exception("RPN: Unknown operation [$token]");
         }
     }
     if ( count( $stack ) > 1 ){
