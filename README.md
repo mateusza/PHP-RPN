@@ -6,9 +6,9 @@ Simple Reverse Polish Notation evaluator written in PHP.
 
 ```
     <?php
-    require 'rpn.php'
+    require 'rpn.php';
 
-    $x = rpn_eval( "2 3 +" ); // should be 5
+    $x = rpn_eval( "2 3 +" );  // returns 5
     echo "x = $x\n";
 ```
 ## Supported operations
