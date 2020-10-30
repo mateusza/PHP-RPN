@@ -57,12 +57,43 @@ function rpn_eval( $exp, $custom_ops = [] ){
             $stack[] = pow( $b, $a );
         },
 
+        "log2" => function( &$stack ){
+            $a = array_pop( $stack );
+            $stack[] = log( $a, 2 );
+        },
+
+        "log10" => function( &$stack ){
+            $a = array_pop( $stack );
+            $stack[] = log( $a, 10 );
+        },
+
+        "log" => function( &$stack ){
+            $a = array_pop( $stack );
+            $stack[] = log( $a );
+        },
+
+        "exp" => function( &$stack ){
+            $a = array_pop( $stack );
+            $stack[] = exp( $a );
+        },
+
+        "sqrt" => function( &$stack ){
+            $a = array_pop( $stack );
+            $stack[] = sqrt( $a );
+        },
+
         // integral division
 
         "mod" => function( &$stack ){
             $a = array_pop( $stack );
             $b = array_pop( $stack );
             $stack[] = $b % $a;
+        },
+
+        "fmod" => function( &$stack ){
+            $a = array_pop( $stack );
+            $b = array_pop( $stack );
+            $stack[] = fmod( $b, $a );
         },
 
         "div" => function( &$stack ){
@@ -159,6 +190,42 @@ function rpn_eval( $exp, $custom_ops = [] ){
             $stack[] = !( $a );
         },
 
+        // array operations
+
+        "array" => function( &$stack ){
+            $n = array_pop( $stack );
+            $a = [];
+            for ( $i =0; $i < $n; $i++ ){
+                $a[] = array_pop( $stack );
+            }
+            $stack[] = $a;
+        },
+
+        "len" => function( &$stack ){
+            $a = array_pop( $stack );            
+            $stack[] = count( $a );
+        },
+
+        "get" => function( &$stack ){
+            $n = array_pop( $stack );
+            $a = array_pop( $stack );
+            $stack[] = $a[$n];
+        },
+
+        "put" => function( &$stack ){
+            $v = array_pop( $stack );
+            $n = array_pop( $stack );
+            $a = array_pop( $stack );
+            $a[ $n ] = $v;
+            $stack[] = $a;
+        },
+
+        "join" => function( &$stack ){
+            $a = array_pop( $stack );
+            $b = array_pop( $stack );
+            $stack[] = array_merge( $b, $a );
+        }
+
     ];
 
     $tokens = is_string( $exp ) ? explode( " ", $exp ) : $exp;
@@ -211,7 +278,8 @@ function rpn_eval( $exp, $custom_ops = [] ){
         }
     }
     if ( count( $stack ) > 1 ){
-        throw new Exception("RPN: Multiple values left on stack: " . implode( " ", $stack ) );
+        $sstack = array_map( function($x){ if ( is_array($x) ) return "Array[".count($x)."]"; return $x; }, $stack );
+        throw new Exception("RPN: Multiple values left on stack: " . implode( " ", $sstack ) );
     }
 
     return $stack[0];
